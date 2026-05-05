@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Database System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .result pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .result-value {
+            color: #333;
+        }
+        
+        .neighbor-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .neighbor-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .path-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .path-node {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .path-arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .query-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .query-buttons button {
+            flex: 1;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Graph Database System</h1>
+            <p>Efficient indexing and querying of massive graph databases</p>
+        </div>
+        
+        <div class="content">
+            <!-- Status Section -->
+            <div id="statusSection" class="section">
+                <h2>System Status</h2>
+                <div id="statusMessage" class="status info">Checking system status...</div>
+                <button onclick="checkStatus()">Refresh Status</button>
+            </div>
+            
+            <!-- Load Graph Section -->
+            <div class="section">
+                <h2>📁 Load Graph</h2>
+                <form id="loadForm" onsubmit="loadGraph(event)">
+                    <div class="form-group">
+                        <label for="graphFile">Graph File (CSV/Edge List):</label>
+                        <input type="file" id="graphFile" name="file" accept=".csv,.txt" required>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="sourceCol">Source Column:</label>
+                            <input type="text" id="sourceCol" value="source" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="targetCol">Target Column:</label>
+                            <input type="text" id="targetCol" value="target" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="weightCol">Weight Column (optional):</label>
+                        <input type="text" id="weightCol" value="weight" placeholder="Leave empty if no weights">
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="normalize" checked>
+                            <label for="normalize">Normalize Node IDs</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="clean" checked>
+                            <label for="clean">Clean Data</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="directed" checked>
+                            <label for="directed">Directed Graph</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="useDask" checked>
+                            <label for="useDask">Use Dask (for large files)</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit">Load & Index Graph</button>
+                </form>
+                <div id="loadResult" class="result" style="display:none;"></div>
+            </div>
+            
+            <!-- Query Section -->
+            <div class="section">
+                <h2>🔍 Query Graph</h2>
+                
+                <div class="query-buttons">
+                    <button onclick="showQueryForm('lookup')">Node Lookup</button>
+                    <button onclick="showQueryForm('neighbors')">Get Neighbors</button>
+                    <button onclick="showQueryForm('path')">Find Path</button>
+                    <button onclick="showQueryForm('common_neighbors')">Common Neighbors</button>
+                    <button onclick="showQueryForm('stats')">Node Stats</button>
+                </div>
+                
+                <form id="queryForm" onsubmit="executeQuery(event)">
+                    <div id="queryFields"></div>
+                    <button type="submit">Execute Query</button>
+                </form>
+                
+                <div id="queryResult" class="result" style="display:none;"></div>
+            </div>
+            
+            <!-- Statistics Section -->
+            <div class="section">
+                <h2>📊 Graph Statistics</h2>
+                <button onclick="getStatistics()">Get Statistics</button>
+                <div id="statsResult" class="result" style="display:none;"></div>
+            </div>
+            
+            <!-- Benchmark Section -->
+            <div class="section">
+                <h2>⚡ Performance Benchmark</h2>
+                <div class="form-group">
+                    <label for="benchmarkTest">Test Type:</label>
+                    <select id="benchmarkTest">
+                        <option value="all">All Tests</option>
+                        <option value="lookup">Node Lookup</option>
+                        <option value="neighbors">Neighbor Query</option>
+                        <option value="path">Path Finding</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="numQueries">Number of Queries:</label>
+                    <input type="number" id="numQueries" value="100" min="1" max="10000">
+                </div>
+                <button onclick="runBenchmark()">Run Benchmark</button>
+                <div id="benchmarkResult" class="result" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentQueryType = null;
+        
+        // Check system status on load
+        window.onload = function() {
+            checkStatus();
+        };
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusDiv = document.getElementById('statusMessage');
+                if (data.initialized) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = `✅ Graph Loaded - Nodes: ${data.statistics?.node_count || 'N/A'}, Edges: ${data.statistics?.edge_count || 'N/A'}`;
+                } else {
+                    statusDiv.className = 'status info';
+                    statusDiv.textContent = 'ℹ️ No graph loaded. Please load a graph file first.';
+                }
+            } catch (error) {
+                document.getElementById('statusMessage').className = 'status error';
+                document.getElementById('statusMessage').textContent = '❌ Error checking status: ' + error.message;
+            }
+        }
+        
+        async function loadGraph(event) {
+            event.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('graphFile');
+            formData.append('file', fileInput.files[0]);
+            formData.append('source_col', document.getElementById('sourceCol').value);
+            formData.append('target_col', document.getElementById('targetCol').value);
+            const weightCol = document.getElementById('weightCol').value.trim();
+            if (weightCol) {
+                formData.append('weight_col', weightCol);
+            }
+            formData.append('normalize', document.getElementById('normalize').checked);
+            formData.append('clean', document.getElementById('clean').checked);
+            formData.append('directed', document.getElementById('directed').checked);
+            formData.append('use_dask', document.getElementById('useDask').checked);
+            
+            const resultDiv = document.getElementById('loadResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<pre>Loading graph... Please wait.</pre>';
+            
+            try {
+                const response = await fetch('/api/load', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = formatLoadResult(data);
+                    checkStatus();
+                } else {
+                    resultDiv.innerHTML = `<div class="error-message">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        function showQueryForm(queryType) {
+            currentQueryType = queryType;
+            const fieldsDiv = document.getElementById('queryFields');
+            let html = '';
+            
+            if (queryType === 'lookup' || queryType === 'stats') {
+                html = `
+                    <div class="form-group">
+                        <label for="nodeId">Node ID:</label>
+                        <input type="number" id="nodeId" required>
+                    </div>
+                `;
+            } else if (queryType === 'neighbors') {
+                html = `
+                    <div class="form-group">
+                        <label for="nodeId">Node ID:</label>
+                        <input type="number" id="nodeId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="direction">Direction:</label>
+                        <select id="direction">
+                            <option value="out">Out</option>
+                            <option value="in">In</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                `;
+            } else if (queryType === 'path') {
+                html = `
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="source">Source Node:</label>
+                            <input type="number" id="source" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="target">Target Node:</label>
+                            <input type="number" id="target" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxDepth">Max Depth:</label>
+                        <input type="number" id="maxDepth" value="10" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="useWeights" checked>
+                            <label for="useWeights">Use Edge Weights (if available)</label>
+                        </div>
+                    </div>
+                `;
+            } else if (queryType === 'common_neighbors') {
+                html = `
+                    <div class="grid">
+                        <div class="form-group">
+                            <label for="node1">Node 1:</label>
+                            <input type="number" id="node1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="node2">Node 2:</label>
+                            <input type="number" id="node2" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="direction">Direction:</label>
+                        <select id="direction">
+                            <option value="out">Out</option>
+                            <option value="in">In</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                `;
+            }
+            
+            fieldsDiv.innerHTML = html;
+        }
+        
+        async function executeQuery(event) {
+            event.preventDefault();
+            
+            if (!currentQueryType) {
+                alert('Please select a query type first');
+                return;
+            }
+            
+            const queryData = { query_type: currentQueryType, user_id: 'web_user' };
+            
+            if (currentQueryType === 'lookup' || currentQueryType === 'stats') {
+                queryData.node_id = parseInt(document.getElementById('nodeId').value);
+            } else if (currentQueryType === 'neighbors') {
+                queryData.node_id = parseInt(document.getElementById('nodeId').value);
+                queryData.direction = document.getElementById('direction').value;
+            } else if (currentQueryType === 'path') {
+                queryData.source = parseInt(document.getElementById('source').value);
+                queryData.target = parseInt(document.getElementById('target').value);
+                queryData.max_depth = parseInt(document.getElementById('maxDepth').value);
+                const useWeightsEl = document.getElementById('useWeights');
+                if (useWeightsEl) {
+                    queryData.use_weights = useWeightsEl.checked;
+                }
+            } else if (currentQueryType === 'common_neighbors') {
+                queryData.node1 = parseInt(document.getElementById('node1').value);
+                queryData.node2 = parseInt(document.getElementById('node2').value);
+                queryData.direction = document.getElementById('direction').value;
+            }
+            
+            const resultDiv = document.getElementById('queryResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<pre>Executing query... Please wait.</pre>';
+            
+            try {
+                const response = await fetch('/api/query', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queryData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    resultDiv.innerHTML = `<div class="error-message">❌ ${data.error}${data.message ? ': ' + data.message : ''}</div>`;
+                } else {
+                    resultDiv.innerHTML = formatQueryResult(data, currentQueryType);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function getStatistics() {
+            const resultDiv = document.getElementById('statsResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<pre>Loading statistics... Please wait.</pre>';
+            
+            try {
+                const response = await fetch('/api/statistics');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = formatStatistics(data);
+                } else {
+                    resultDiv.innerHTML = `<div class="error-message">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function runBenchmark() {
+            const resultDiv = document.getElementById('benchmarkResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<pre>Running benchmark... This may take a while.</pre>';
+            
+            try {
+                const response = await fetch('/api/benchmark', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        test: document.getElementById('benchmarkTest').value,
+                        num_queries: parseInt(document.getElementById('numQueries').value)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = formatBenchmarkResult(data.results);
+                } else {
+                    resultDiv.innerHTML = `<div class="error-message">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<pre style="color: red;">Error: ${error.message}</pre>`;
+            }
+        }
+        function formatLoadResult(data) {
+            if (data.error) {
+                return `<div class="error-message">❌ ${data.error}</div>`;
+            }
+            
+            let html = '<div class="success-message">✅ ' + data.message + '</div>';
+            
+            if (data.statistics) {
+                html += '<div class="result-card"><h3>📊 Graph Statistics</h3>';
+                html += '<div class="stats-grid">';
+                html += `<div class="stat-box"><div class="stat-value">${data.statistics.node_count || 0}</div><div class="stat-label">Nodes</div></div>`;
+                html += `<div class="stat-box"><div class="stat-value">${data.statistics.edge_count || 0}</div><div class="stat-label">Edges</div></div>`;
+                html += `<div class="stat-box"><div class="stat-value">${data.statistics.avg_degree?.toFixed(2) || 0}</div><div class="stat-label">Avg Degree</div></div>`;
+                html += `<div class="stat-box"><div class="stat-value">${data.statistics.max_degree || 0}</div><div class="stat-label">Max Degree</div></div>`;
+                html += '</div></div>';
+            }
+            
+            return html;
+        }
+        
+        function formatQueryResult(data, queryType) {
+            if (data.error) {
+                return `<div class="error-message">❌ ${data.error}${data.message ? ': ' + data.message : ''}</div>`;
+            }
+            
+            let html = '';
+            
+            if (queryType === 'lookup') {
+                if (!data.exists) {
+                    return `<div class="error-message">❌ Node ${data.node_id} not found in graph</div>`;
+                }
+                html = '<div class="result-card">';
+                html += '<h3>🔍 Node Lookup Results</h3>';
+                html += `<div class="result-item"><span class="result-label">Node ID:</span><span class="result-value">${data.node_id}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Status:</span><span class="result-value">✅ Exists</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Outgoing Degree:</span><span class="result-value">${data.out_degree}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Incoming Degree:</span><span class="result-value">${data.in_degree}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Total Degree:</span><span class="result-value"><strong>${data.total_degree}</strong></span></div>`;
+                html += '</div>';
+            }
+            else if (queryType === 'neighbors') {
+                if (!data.exists) {
+                    return `<div class="error-message">❌ Node ${data.node_id} not found in graph</div>`;
+                }
+                html = '<div class="result-card">';
+                html += '<h3>👥 Neighbors Results</h3>';
+                html += `<div class="result-item"><span class="result-label">Node ID:</span><span class="result-value">${data.node_id}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Direction:</span><span class="result-value">${data.direction}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Total Neighbors:</span><span class="result-value"><strong>${data.total_count}</strong></span></div>`;
+                if (data.neighbors && data.neighbors.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Neighbor Nodes:</strong></div>';
+                    html += '<div class="neighbor-list">';
+                    data.neighbors.forEach(neighbor => {
+                        if (data.neighbors_with_weights && data.neighbors_with_weights[neighbor] !== undefined) {
+                            html += `<span class="neighbor-badge" title="Weight: ${data.neighbors_with_weights[neighbor]}">${neighbor} (${data.neighbors_with_weights[neighbor]})</span>`;
+                        } else {
+                            html += `<span class="neighbor-badge">${neighbor}</span>`;
+                        }
+                    });
+                    html += '</div>';
+                    if (data.has_weights) {
+                        html += '<div style="margin-top: 10px; color: #666; font-size: 0.9em;">Numbers in parentheses are edge weights</div>';
+                    }
+                } else {
+                    html += '<div style="margin-top: 15px; color: #666;">No neighbors found</div>';
+                }
+                html += '</div>';
+            }
+            else if (queryType === 'path') {
+                if (!data.path_exists) {
+                    return `<div class="error-message">❌ ${data.message || 'No path found between nodes ' + data.source + ' and ' + data.target}</div>`;
+                }
+                html = '<div class="result-card">';
+                html += '<h3>🛤️ Path Finding Results</h3>';
+                html += `<div class="result-item"><span class="result-label">Source Node:</span><span class="result-value">${data.source}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Target Node:</span><span class="result-value">${data.target}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Path Length:</span><span class="result-value"><strong>${data.length} edges</strong></span></div>`;
+                if (data.total_weight !== undefined) {
+                    html += `<div class="result-item"><span class="result-label">Total Weight:</span><span class="result-value"><strong>${data.total_weight.toFixed(2)}</strong></span></div>`;
+                }
+                if (data.path && data.path.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Path:</strong></div>';
+                    html += '<div class="path-display">';
+                    data.path.forEach((node, index) => {
+                        html += `<span class="path-node">${node}</span>`;
+                        if (index < data.path.length - 1) {
+                            html += '<span class="path-arrow">→</span>';
+                        }
+                    });
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            else if (queryType === 'common_neighbors') {
+                html = '<div class="result-card">';
+                html += '<h3>🤝 Common Neighbors Results</h3>';
+                html += `<div class="result-item"><span class="result-label">Node 1:</span><span class="result-value">${data.node1}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Node 2:</span><span class="result-value">${data.node2}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Common Neighbors:</span><span class="result-value"><strong>${data.count}</strong></span></div>`;
+                if (data.common_neighbors && data.common_neighbors.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Shared Neighbor Nodes:</strong></div>';
+                    html += '<div class="neighbor-list">';
+                    data.common_neighbors.forEach(neighbor => {
+                        html += `<span class="neighbor-badge">${neighbor}</span>`;
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<div style="margin-top: 15px; color: #666;">No common neighbors found</div>';
+                }
+                html += '</div>';
+            }
+            else if (queryType === 'stats') {
+                if (!data.exists) {
+                    return `<div class="error-message">❌ Node ${data.node_id} not found in graph</div>`;
+                }
+                html = '<div class="result-card">';
+                html += '<h3>📊 Node Statistics</h3>';
+                html += `<div class="result-item"><span class="result-label">Node ID:</span><span class="result-value">${data.node_id}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Outgoing Degree:</span><span class="result-value">${data.out_degree}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Incoming Degree:</span><span class="result-value">${data.in_degree}</span></div>`;
+                html += `<div class="result-item"><span class="result-label">Total Degree:</span><span class="result-value"><strong>${data.total_degree}</strong></span></div>`;
+                
+                if (data.out_neighbors_sample && data.out_neighbors_sample.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Sample Outgoing Neighbors:</strong></div>';
+                    html += '<div class="neighbor-list">';
+                    data.out_neighbors_sample.forEach(neighbor => {
+                        html += `<span class="neighbor-badge">${neighbor}</span>`;
+                    });
+                    html += '</div>';
+                }
+                
+                if (data.in_neighbors_sample && data.in_neighbors_sample.length > 0) {
+                    html += '<div style="margin-top: 15px;"><strong>Sample Incoming Neighbors:</strong></div>';
+                    html += '<div class="neighbor-list">';
+                    data.in_neighbors_sample.forEach(neighbor => {
+                        html += `<span class="neighbor-badge">${neighbor}</span>`;
+                    });
+                    html += '</div>';
+                }
+                
+                html += '</div>';
+            }
+            
+            return html;
+        }
+        
+        function formatStatistics(data) {
+            if (data.error) {
+                return `<div class="error-message">❌ ${data.error}</div>`;
+            }
+            
+            let html = '<div class="result-card"><h3>📊 Overall Graph Statistics</h3>';
+            html += '<div class="stats-grid">';
+            html += `<div class="stat-box"><div class="stat-value">${data.node_count || 0}</div><div class="stat-label">Total Nodes</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${data.edge_count || 0}</div><div class="stat-label">Total Edges</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${data.avg_degree?.toFixed(2) || 0}</div><div class="stat-label">Average Degree</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${data.max_degree || 0}</div><div class="stat-label">Max Degree</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${data.min_degree || 0}</div><div class="stat-label">Min Degree</div></div>`;
+            html += '</div></div>';
+            
+            return html;
+        }
+        
+        function formatBenchmarkResult(results) {
+            if (typeof results === 'object' && results.error) {
+                return `<div class="error-message">❌ ${results.error}</div>`;
+            }
+            
+            let html = '<div class="result-card"><h3>⚡ Benchmark Results</h3>';
+            
+            if (results.node_lookup) {
+                html += '<div style="margin-top: 15px;"><h4>Node Lookup Performance</h4>';
+                html += formatBenchmarkStats(results.node_lookup);
+                html += '</div>';
+            }
+            
+            if (results.neighbor_query) {
+                html += '<div style="margin-top: 15px;"><h4>Neighbor Query Performance</h4>';
+                html += formatBenchmarkStats(results.neighbor_query);
+                html += '</div>';
+            }
+            
+            if (results.path_query) {
+                html += '<div style="margin-top: 15px;"><h4>Path Query Performance</h4>';
+                html += formatBenchmarkStats(results.path_query);
+                html += '</div>';
+            }
+            
+            // If it's a single result (not nested)
+            if (results.query_count) {
+                html = '<div class="result-card"><h3>⚡ Benchmark Results</h3>';
+                html += formatBenchmarkStats(results);
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            return html;
+        }
+        
+        function formatBenchmarkStats(stats) {
+            if (!stats || stats.error) {
+                return `<div class="error-message">❌ ${stats?.error || 'No data available'}</div>`;
+            }
+            
+            let html = '<div class="stats-grid">';
+            html += `<div class="stat-box"><div class="stat-value">${stats.throughput_qps?.toFixed(2) || 0}</div><div class="stat-label">Queries/Second</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${stats.latency_ms?.mean?.toFixed(2) || 0}ms</div><div class="stat-label">Mean Latency</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${stats.latency_ms?.median?.toFixed(2) || 0}ms</div><div class="stat-label">Median Latency</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${stats.latency_ms?.p95?.toFixed(2) || 0}ms</div><div class="stat-label">P95 Latency</div></div>`;
+            html += `<div class="stat-box"><div class="stat-value">${stats.memory_mb?.current?.toFixed(2) || 0}MB</div><div class="stat-label">Memory Usage</div></div>`;
+            html += '</div>';
+            
+            return html;
+        }
+    </script>
+</body>
+</html>
+
