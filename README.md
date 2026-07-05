@@ -2,7 +2,7 @@
 
 A prototype system for efficient indexing and querying of massive graph databases. Built with Python, focusing on practicality, scalability, and reproducibility.
 
-## Features
+## Features:
 
 - **Graph Data Loading**: Load graphs from CSV files and edge lists
 - **Efficient Preprocessing**: Use Dask for handling large datasets
