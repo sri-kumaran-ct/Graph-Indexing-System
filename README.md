@@ -4,12 +4,12 @@ A prototype system for efficient indexing and querying of massive graph database
 
 ## Features:
 
-- **Graph Data Loading**: Load graphs from CSV files and edge lists
-- **Efficient Preprocessing**: Use Dask for handling large datasets
-- **Fast Indexing**: Lightweight indexes for rapid node and neighbor lookups
-- **Query Engine**: Support for node lookup, neighbor queries, and path finding
-- **Security**: Basic access control and query restrictions
-- **Performance Evaluation**: Built-in benchmarking and metrics collection
+- **Graph Data Loading**: Load graphs from CSV files and edge lists.
+- **Efficient Preprocessing**: Use Dask for handling large datasets.
+- **Fast Indexing**: Lightweight indexes for rapid node and neighbor lookups.
+- **Query Engine**: Support for node lookup, neighbor queries, and path finding.
+- **Security**: Basic access control and query restrictions.
+- **Performance Evaluation**: Built-in benchmarking and metrics collection.
 
 ## Architecture
 
